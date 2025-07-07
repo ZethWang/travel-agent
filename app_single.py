@@ -18,6 +18,10 @@ st.set_page_config(
     layout="wide"
 )
 
+# 设置默认的API密钥环境变量
+os.environ.setdefault("SEARCHAPI_API_KEY", "5722Vw5rYoJTVHyffqNph3F4")
+# os.environ.setdefault("OPENAI_API_KEY", "sk-FxhjDpv1D62n33JGICef3aVagezAr73GFnoXmSQ4ikMpf9Hb")
+os.environ.setdefault("OPENAI_API_KEY", "sk-widDrKmkgrnCsmVg281bD224F984400eBb4586657a519a68")
 
 def create_travel_plan_pdf(travel_plan_text, source, destination, travel_dates, budget):
     """创建旅行计划的PDF文档"""

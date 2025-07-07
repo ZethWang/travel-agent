@@ -4,6 +4,7 @@ from datetime import date
 from fpdf import FPDF
 import io
 import base64
+from dotenv import load_dotenv
 
 from agno.agent import Agent
 from agno.team.team import Team
@@ -12,6 +13,9 @@ from agno.models.openai import OpenAIChat
 from agno.models.google import Gemini
 import streamlit as st
 
+# 加载环境变量
+load_dotenv()
+
 # 配置页面 - 必须是第一个 Streamlit 命令
 st.set_page_config(
     page_title="AI 旅行规划助手",
@@ -19,6 +23,18 @@ st.set_page_config(
     layout="wide"
 )
 
+# 从环境变量获取API密钥，如果没有则使用默认值（但建议在.env文件中配置）
+SEARCHAPI_API_KEY = os.getenv("SEARCHAPI_API_KEY")
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY") 
+OPENAI_API_KEY2 = os.getenv("OPENAI_API_KEY2")
+GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+
+# 验证必要的API密钥是否存在
+if not SEARCHAPI_API_KEY:
+    st.error("⚠️ 请在.env文件中配置SEARCHAPI_API_KEY")
+if not OPENAI_API_KEY:
+    st.error("⚠️ 请在.env文件中配置OPENAI_API_KEY")
 
 def create_travel_plan_pdf(travel_plan_text, source, destination, travel_dates, budget):
     """创建旅行计划的PDF文档"""
@@ -233,10 +249,9 @@ async def run_agents_team(message: str):
         )
         
         # 为行程规划专家配置第二个模型 - 使用新的API
-        openai_key2 = os.environ.get("OPENAI_API_KEY2", "")
         planning_model = OpenAIChat(
             id="gpt-4o-mini",  # 使用xi-ai支持的模型
-            api_key=openai_key2,  # 使用新的API密钥
+            api_key=OPENAI_API_KEY2,  # 使用新的API密钥
             base_url="https://api.xi-ai.cn/v1",  # 使用新的API URL
         )
     elif model_provider == 'Gemini':
@@ -408,11 +423,11 @@ with st.sidebar:
     
     # 如果会话状态中不存在 API 密钥，则初始化（使用环境变量作为默认值）
     if 'searchapi_key' not in st.session_state:
-        st.session_state.searchapi_key = os.environ.get("SEARCHAPI_API_KEY", "")
+        st.session_state.searchapi_key = SEARCHAPI_API_KEY or ""
     if 'openai_key' not in st.session_state:
-        st.session_state.openai_key = os.environ.get("OPENAI_API_KEY", "")
+        st.session_state.openai_key = OPENAI_API_KEY or ""
     if 'gemini_key' not in st.session_state:
-        st.session_state.gemini_key = ""
+        st.session_state.gemini_key = GEMINI_API_KEY or ""
 
     # API 密钥输入字段
     st.session_state.searchapi_key = st.text_input(
